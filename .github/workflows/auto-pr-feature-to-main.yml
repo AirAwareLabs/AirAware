@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up GitHub CLI
-        uses: cli/cli-action@v2
+        uses: actions/setup-gh@v4
 
       - name: Check if PR already exists
         id: check_pr
@@ -29,4 +29,3 @@ jobs:
           gh pr create --base main --head ${{ github.ref_name }} --title "Auto PR: ${{ github.ref_name }} to main" --body "Automated PR from feature branch."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
