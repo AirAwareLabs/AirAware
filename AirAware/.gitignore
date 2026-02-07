@@ -1,0 +1,54 @@
+﻿# Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+
+# Build outputs
+bin/
+obj/
+out/
+publish/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+
+# EF & SQLite local DBs (don't commit)
+*.db
+*.sqlite
+*.sqlite3
+
+# Local config / secrets
+.env
+.env.*.local
+secrets.json
+appsettings.*.Secrets.json
+appsettings.Development.json
+
+# Logs & coverage
+logs/
+*.log
+coverage/
+coverage*.xml
+*.lcov
+
+# Docker override (local)
+docker-compose.override.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test result folders
+TestResults/
+nunit-*.xml
+
+# Publish artifacts
+artifacts/
