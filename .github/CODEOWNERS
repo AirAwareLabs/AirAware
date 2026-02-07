@@ -1,5 +1,5 @@
 # Backend System Code Owners
-/.*                                 @AirAwareLabs/airaware-backend
-/AirAware/Controllers/*             @AirAwareLabs/airaware-backend
-/AirAware/Data/*                    @AirAwareLabs/airaware-backend
-/AirAware/Models/*                  @AirAwareLabs/airaware-backend
+/.*                                 @AirAwareLabs/AirAware-BackEnd
+/AirAware/Controllers/*             @AirAwareLabs/AirAware-BackEnd
+/AirAware/Data/*                    @AirAwareLabs/AirAware-BackEnd
+/AirAware/Models/*                  @AirAwareLabs/AirAware-BackEnd
