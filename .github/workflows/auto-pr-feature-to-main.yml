@@ -1,0 +1,32 @@
+﻿name: Auto PR from feature/* to main
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up GitHub CLI
+        uses: cli/cli-action@v2
+
+      - name: Check if PR already exists
+        id: check_pr
+        run: |
+          PR_EXISTS=$(gh pr list --base main --head ${{ github.ref_name }} --json number --jq 'length > 0')
+          echo "pr_exists=$PR_EXISTS" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Pull Request
+        if: steps.check_pr.outputs.pr_exists == 'false'
+        run: |
+          gh pr create --base main --head ${{ github.ref_name }} --title "Auto PR: ${{ github.ref_name }} to main" --body "Automated PR from feature branch."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
