@@ -1,0 +1,12 @@
+﻿using AirAware.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace AirAware.Data;
+
+public class AppDbContext: DbContext
+{
+    public DbSet<Station> Stations { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => 
+        optionsBuilder.UseSqlite("DataSource=app.db;Cache=Shared");
+}
