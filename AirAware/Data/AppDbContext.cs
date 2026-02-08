@@ -6,6 +6,7 @@ namespace AirAware.Data;
 public class AppDbContext: DbContext
 {
     public DbSet<Station> Stations { get; set; }
+    public DbSet<Reading> Readings { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => 
         optionsBuilder.UseSqlite("DataSource=app.db;Cache=Shared");
