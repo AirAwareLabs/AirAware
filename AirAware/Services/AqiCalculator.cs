@@ -4,7 +4,7 @@ using AirAware.Models;
 
 namespace AirAware.Services;
 
-public class EpaAqiCalculator : IAqiCalculator
+public class AqiCalculator : IAqiCalculator
 {
     // Breakpoint tuple: (C_lo, C_hi, I_lo, I_hi, Category)
     private readonly List<(double Clo, double Chi, int Ilo, int Ihi, string Category)> _pm25Breakpoints =
