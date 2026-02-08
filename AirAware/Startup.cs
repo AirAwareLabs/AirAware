@@ -1,5 +1,6 @@
 ﻿using AirAware.Data;
 using AirAware.Services;
+using AirAware.Utils;
 
 namespace AirAware;
 
@@ -12,11 +13,14 @@ public class Startup
         services.AddDbContext<AppDbContext>();
     }
     
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
     {
+        Logger.LogApplicationStartup(logger, env.EnvironmentName);
+        
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+            Logger.LogConfiguration(logger, "Environment", "Development mode enabled with exception page");
         }
 
         app.UseRouting();
@@ -28,5 +32,7 @@ public class Startup
                 "{controller=Home}/{action=Index}/{id?}"
             );
         });
+        
+        Logger.LogConfiguration(logger, "Routing", "Endpoints configured successfully");
     }
 }
