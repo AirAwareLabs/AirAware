@@ -72,7 +72,7 @@ public class StationController: ControllerBase
     [Route("stations/{id}")]
     public async Task<IActionResult> PutAsync(
         [FromServices] AppDbContext context, 
-        [FromBody] CreateStationViewModel model,
+        [FromBody] UpdateStationViewModel model,
         [FromRoute] Guid id
     )
     {
@@ -88,13 +88,19 @@ public class StationController: ControllerBase
 
         try
         {
-            station.Name = model.Name;
-            station.Latitude = model.Latitude!.Value;
-            station.Longitude = model.Longitude!.Value;
-            station.Provider = model.Provider;
-            station.Metadata = model.Metadata;
+            if (model.Name != null)
+                station.Name = model.Name;
+            if (model.Latitude != null)
+                station.Latitude = model.Latitude.Value;
+            if (model.Longitude != null)
+                station.Longitude = model.Longitude.Value;
+            if (model.Provider != null)
+                station.Provider = model.Provider;
+            if (model.Metadata != null)
+                station.Metadata = model.Metadata;
+            if (model.Active != null)
+                station.Active = model.Active.Value;
             
-            context.Stations.Update(station);
             await context.SaveChangesAsync();
 
             return Ok(station);
