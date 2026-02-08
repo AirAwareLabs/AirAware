@@ -1,4 +1,5 @@
 ﻿using AirAware.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace AirAware;
 
@@ -10,8 +11,11 @@ public class Startup
         services.AddDbContext<AppDbContext>();
     }
     
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext dbContext)
     {
+        // Apply any pending migrations on startup
+        dbContext.Database.Migrate();
+        
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
