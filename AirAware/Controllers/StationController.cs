@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AirAware.Controllers;
 
 [ApiController]
-[Route("v1")]
+[Route("api/v1")]
 public class StationController: ControllerBase
 {
     [HttpGet]
@@ -25,7 +25,7 @@ public class StationController: ControllerBase
     [Route("stations/{id}")]
     public async Task<IActionResult> GetByIdAsync(
         [FromServices] AppDbContext context, 
-        [FromRoute] int id
+        [FromRoute] Guid id
     )
     {
         var station = await context
