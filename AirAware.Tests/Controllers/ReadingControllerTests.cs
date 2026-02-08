@@ -5,6 +5,7 @@ using AirAware.Services;
 using AirAware.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -15,6 +16,7 @@ public class ReadingControllerTests : IDisposable
     private readonly AppDbContext _context;
     private readonly ReadingController _controller;
     private readonly Mock<IAqiCalculator> _mockCalculator;
+    private readonly Mock<ILogger<ReadingController>> _loggerMock;
 
     public ReadingControllerTests()
     {
@@ -23,7 +25,8 @@ public class ReadingControllerTests : IDisposable
             .Options;
 
         _context = new AppDbContext(options);
-        _controller = new ReadingController();
+        _loggerMock = new Mock<ILogger<ReadingController>>();
+        _controller = new ReadingController(_loggerMock.Object);
         _mockCalculator = new Mock<IAqiCalculator>();
     }
 

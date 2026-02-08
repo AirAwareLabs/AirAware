@@ -4,6 +4,8 @@ using AirAware.Models;
 using AirAware.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace AirAware.Tests.Controllers;
@@ -12,6 +14,7 @@ public class StationControllerTests : IDisposable
 {
     private readonly AppDbContext _context;
     private readonly StationController _controller;
+    private readonly Mock<ILogger<StationController>> _loggerMock;
 
     public StationControllerTests()
     {
@@ -20,7 +23,8 @@ public class StationControllerTests : IDisposable
             .Options;
 
         _context = new AppDbContext(options);
-        _controller = new StationController();
+        _loggerMock = new Mock<ILogger<StationController>>();
+        _controller = new StationController(_loggerMock.Object);
     }
 
     public void Dispose()
