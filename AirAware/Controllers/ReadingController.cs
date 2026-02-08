@@ -59,7 +59,7 @@ public class ReadingController: ControllerBase
         {
             await context.Readings.AddAsync(reading);
             await context.SaveChangesAsync();
-            return Created($"v1/readings/{reading.Id}", reading);
+            return Created($"api/v1/readings/{reading.Id}", reading);
         }
         catch (Exception)
         {
