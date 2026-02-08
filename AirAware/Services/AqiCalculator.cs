@@ -32,7 +32,7 @@ public class AqiCalculator : IAqiCalculator
     public (AqiResult final, AqiResult pm25, AqiResult pm10) Calculate(Reading reading)
     {
         var pm25Result = CalculateForPm25(reading.Pm25);
-        var pm10Result = CalculateForPm10(reading.Pm10);
+        var pm10Result = CalculateForPm10(reading.Pm10 ?? 0);
 
         // Final AQI is the highest individual pollutant AQI
         var final = pm25Result.Value >= pm10Result.Value ? pm25Result : pm10Result;

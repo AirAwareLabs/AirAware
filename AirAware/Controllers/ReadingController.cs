@@ -83,7 +83,7 @@ public class ReadingController: ControllerBase
         {
             StationId = model.StationId,
             Pm25 = model.Pm25,
-            Pm10 = model.Pm10,
+            Pm10 = pm10,
             RawPayload = model.RawPayload
         };
 

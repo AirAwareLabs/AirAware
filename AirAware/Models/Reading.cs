@@ -9,7 +9,7 @@ public class Reading
     [JsonIgnore]
     public Station Station { get; set; } = null!;
     public double Pm25 { get; set; }
-    public double Pm10 { get; set; }
+    public double? Pm10 { get; set; }
     public string? RawPayload { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }
