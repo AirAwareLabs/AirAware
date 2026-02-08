@@ -16,6 +16,7 @@ AirAware is a comprehensive backend system designed to collect, process, and ser
 - ✅ EPA-standard breakpoint calculations
 - ✅ Flexible data ingestion with raw payload storage
 - ✅ Geolocation support for stations
+- ✅ API key authentication for secure access
 - ✅ Comprehensive test coverage (89 unit tests)
 - ✅ RESTful API for managing stations and readings
 
@@ -107,6 +108,13 @@ Computed Air Quality Index values.
 ---
 
 ## 🔌 API Endpoints
+
+**⚠️ Authentication Required:** All API endpoints require an API key. Include the `X-API-KEY` header in all requests.
+
+**Example:**
+```bash
+curl -H "X-API-KEY: your-api-key-here" http://localhost:5000/api/v1/stations
+```
 
 ### Station Management
 
@@ -346,18 +354,32 @@ Build succeeded ✅
    dotnet restore
    ```
 
-3. **Run migrations**
+3. **Configure API Key**
+   
+   Set the API key as an environment variable:
+   ```bash
+   export ApiKey="your-secure-api-key-here"
+   ```
+   
+   **Note:** The API key must be set as an environment variable for security reasons. Do not store API keys in configuration files.
+
+4. **Run migrations**
    ```bash
    cd AirAware
    dotnet ef database update
    ```
 
-4. **Start the application**
+5. **Start the application**
    ```bash
    dotnet run
    ```
 
    The API will be available at `http://localhost:5000`
+   
+   **Note:** All API requests must include the `X-API-KEY` header:
+   ```bash
+   curl -H "X-API-KEY: your-secure-api-key-here" http://localhost:5000/api/v1/stations
+   ```
 
 ### Development Workflow
 
@@ -491,7 +513,7 @@ See [LICENSE](LICENSE) for full terms.
 ## 🗺️ Roadmap
 
 ### Future Enhancements
-- [ ] Authentication & Authorization (API keys)
+- [x] Authentication & Authorization (API keys) ✅
 - [ ] Rate limiting for API endpoints
 - [ ] WebSocket support for real-time updates
 - [ ] Historical data aggregation

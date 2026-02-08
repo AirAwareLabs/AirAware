@@ -1,4 +1,5 @@
 ﻿using AirAware.Data;
+using AirAware.Middleware;
 using AirAware.Services;
 
 namespace AirAware;
@@ -18,6 +19,8 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
         }
+
+        app.UseMiddleware<ApiKeyAuthMiddleware>();
 
         app.UseRouting();
 
