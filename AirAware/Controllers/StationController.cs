@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AirAware.Controllers;
 
 [ApiController]
-[Route("v1")]
+[Route("api/v1")]
 public class StationController: ControllerBase
 {
     [HttpGet]
