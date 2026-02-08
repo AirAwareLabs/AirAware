@@ -60,7 +60,7 @@ public class StationController: ControllerBase
         {
             await context.Stations.AddAsync(station);
             await context.SaveChangesAsync();
-            return Created($"v1/stations/{station.Id}", station);
+            return Created($"api/v1/stations/{station.Id}", station);
         }
         catch (Exception)
         {
