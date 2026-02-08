@@ -14,8 +14,8 @@ public class ApiKeyAuthMiddleware
     {
         _next = next;
         
-        // Read the API key from environment variable (recommended) or configuration
-        // Environment variable takes precedence over appsettings.json
+        // Read the API key from environment variable
+        // IConfiguration automatically reads from environment variables
         var validApiKey = configuration.GetValue<string>("ApiKey");
         
         // Check for server misconfiguration at startup
