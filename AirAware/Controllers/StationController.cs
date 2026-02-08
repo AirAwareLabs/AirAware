@@ -62,9 +62,52 @@ public class StationController: ControllerBase
             await context.SaveChangesAsync();
             return Created($"v1/stations/{station.Id}", station);
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return BadRequest(e);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+    }
+    
+    [HttpPut]
+    [Route("stations/{id}")]
+    public async Task<IActionResult> PutAsync(
+        [FromServices] AppDbContext context, 
+        [FromBody] UpdateStationViewModel model,
+        [FromRoute] Guid id
+    )
+    {
+        if (!ModelState.IsValid) 
+            return BadRequest();
+        
+        var station = await context
+            .Stations
+            .FirstOrDefaultAsync(s => s.Id == id);
+        
+        if (station == null)
+            return NotFound();
+
+        try
+        {
+            if (model.Name != null)
+                station.Name = model.Name;
+            if (model.Latitude != null)
+                station.Latitude = model.Latitude.Value;
+            if (model.Longitude != null)
+                station.Longitude = model.Longitude.Value;
+            if (model.Provider != null)
+                station.Provider = model.Provider;
+            if (model.Metadata != null)
+                station.Metadata = model.Metadata;
+            if (model.Active != null)
+                station.Active = model.Active.Value;
+            
+            await context.SaveChangesAsync();
+
+            return Ok(station);
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 }
