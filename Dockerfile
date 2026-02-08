@@ -13,7 +13,7 @@ RUN dotnet restore "AirAware/AirAware.csproj"
 # Copy everything else and publish
 COPY . .
 WORKDIR "/src/AirAware"
-RUN dotnet publish "AirAware.csproj" -c Release -o /app/publish
+RUN dotnet publish "AirAware.csproj" -c Release -o /app/publish --no-restore
 
 FROM base AS final
 WORKDIR /app
