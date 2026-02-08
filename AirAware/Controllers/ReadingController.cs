@@ -58,7 +58,7 @@ public class ReadingController: ControllerBase
         var reading = new Reading
         {
             StationId = model.StationId,
-            Pm2_5 = model.Pm2_5,
+            Pm25 = model.Pm25,
             Pm10 = model.Pm10,
             RawPayload = model.RawPayload
         };
