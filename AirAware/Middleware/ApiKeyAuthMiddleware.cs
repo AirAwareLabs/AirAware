@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace AirAware.Middleware;
@@ -5,13 +7,24 @@ namespace AirAware.Middleware;
 public class ApiKeyAuthMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IConfiguration _configuration;
+    private readonly byte[] _validApiKeyBytes;
     private const string ApiKeyHeaderName = "X-API-KEY";
 
     public ApiKeyAuthMiddleware(RequestDelegate next, IConfiguration configuration)
     {
         _next = next;
-        _configuration = configuration;
+        
+        // Cache the valid API key from configuration during construction
+        var validApiKey = configuration.GetValue<string>("ApiKey");
+        
+        // Check for server misconfiguration at startup
+        if (string.IsNullOrWhiteSpace(validApiKey))
+        {
+            throw new InvalidOperationException(
+                "API Key is not configured. Please set the 'ApiKey' value in appsettings.json or environment variables.");
+        }
+        
+        _validApiKeyBytes = Encoding.UTF8.GetBytes(validApiKey);
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -24,11 +37,10 @@ public class ApiKeyAuthMiddleware
             return;
         }
 
-        // Get the valid API key from configuration
-        var validApiKey = _configuration.GetValue<string>("ApiKey");
-
-        // Validate the API key
-        if (string.IsNullOrWhiteSpace(validApiKey) || !validApiKey.Equals(extractedApiKey))
+        // Validate the API key using constant-time comparison to prevent timing attacks
+        var extractedApiKeyBytes = Encoding.UTF8.GetBytes(extractedApiKey.ToString());
+        
+        if (!CryptographicOperations.FixedTimeEquals(_validApiKeyBytes, extractedApiKeyBytes))
         {
             context.Response.StatusCode = 401; // Unauthorized
             await context.Response.WriteAsync("Invalid API Key");
