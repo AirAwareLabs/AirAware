@@ -110,4 +110,39 @@ public class StationController: ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
+    
+    [HttpGet]
+    [Route("stations/{id}/aqi/latest")]
+    public async Task<IActionResult> GetLatestAqiForStation(
+        [FromServices] AppDbContext context,
+        [FromRoute] Guid id
+    )
+    {
+        // Ensure station exists
+        var station = await context.Stations.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+        if (station == null) return NotFound("Station not found.");
+
+        // Get latest AQI record for this station, including its reading
+        var latest = await context.AqiRecords
+            .AsNoTracking()
+            .Where(a => a.StationId == id)
+            .OrderByDescending(a => a.ComputedAt)
+            .Join(context.Readings.AsNoTracking(),
+                a => a.ReadingId,
+                r => r.Id,
+                (a, r) => new { Aqi = a, Reading = r })
+            .Select(ar => new
+            {
+                ar.Aqi.Id,
+                ar.Aqi.AqiValue,
+                ar.Aqi.Category,
+                ar.Aqi.ComputedAt,
+                Reading = new { ar.Reading.Id, ar.Reading.Pm25, ar.Reading.Pm10, ar.Reading.CreatedAt }
+            })
+            .FirstOrDefaultAsync();
+
+        if (latest == null) return NotFound("No AQI records for station.");
+
+        return Ok(latest);
+    }
 }
