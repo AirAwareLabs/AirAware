@@ -12,17 +12,19 @@ public class ReadingTests
         var stationId = Guid.NewGuid();
 
         // Act
+        var before = DateTime.Now;
         var reading = new Reading
         {
             StationId = stationId,
             Pm25 = 12.5
         };
+        var after = DateTime.Now;
 
         // Assert
         Assert.NotEqual(Guid.Empty, reading.Id);
         Assert.Equal(stationId, reading.StationId);
-        Assert.True(reading.CreatedAt <= DateTime.Now);
-        Assert.True(reading.CreatedAt >= DateTime.Now.AddSeconds(-1));
+        Assert.True(reading.CreatedAt >= before);
+        Assert.True(reading.CreatedAt <= after);
     }
 
     [Fact]

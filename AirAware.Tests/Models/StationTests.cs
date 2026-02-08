@@ -9,18 +9,20 @@ public class StationTests
     public void Station_DefaultValues_AreSetCorrectly()
     {
         // Act
+        var before = DateTime.Now;
         var station = new Station
         {
             Name = "Test Station",
             Latitude = 40.7128,
             Longitude = -74.0060
         };
-
+        var after = DateTime.Now;
+        
         // Assert
         Assert.NotEqual(Guid.Empty, station.Id);
         Assert.True(station.Active);
-        Assert.True(station.CreatedAt <= DateTime.Now);
-        Assert.True(station.CreatedAt >= DateTime.Now.AddSeconds(-1));
+        Assert.True(station.CreatedAt >= before);
+        Assert.True(station.CreatedAt <= after);
     }
 
     [Fact]

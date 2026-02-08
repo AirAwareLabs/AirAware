@@ -277,7 +277,7 @@ public class ReadingControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task PostAsync_DoesNotCreateDuplicateAqiRecords()
+    public async Task PostAsync_CreatesNewAqiRecordForNewReading()
     {
         // Arrange
         var station = new Station { Name = "Test Station", Latitude = 40.7128, Longitude = -74.0060 };

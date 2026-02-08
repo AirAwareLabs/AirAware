@@ -9,6 +9,7 @@ public class AqiRecordTests
     public void AqiRecord_DefaultValues_AreSetCorrectly()
     {
         // Act
+        var before = DateTime.Now;
         var aqiRecord = new AqiRecord
         {
             ReadingId = Guid.NewGuid(),
@@ -16,11 +17,12 @@ public class AqiRecordTests
             AqiValue = 50,
             Category = "Good"
         };
+        var after = DateTime.Now;
 
         // Assert
         Assert.NotEqual(Guid.Empty, aqiRecord.Id);
-        Assert.True(aqiRecord.ComputedAt <= DateTime.Now);
-        Assert.True(aqiRecord.ComputedAt >= DateTime.Now.AddSeconds(-1));
+        Assert.True(aqiRecord.ComputedAt >= before);
+        Assert.True(aqiRecord.ComputedAt <= after);
     }
 
     [Fact]

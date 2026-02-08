@@ -17,7 +17,7 @@ AirAware is a comprehensive backend system designed to collect, process, and ser
 - ✅ Flexible data ingestion with raw payload storage
 - ✅ Geolocation support for stations
 - ✅ Comprehensive test coverage (89 unit tests)
-- ✅ RESTful API with full CRUD operations
+- ✅ RESTful API for managing stations and readings
 
 ---
 
@@ -42,7 +42,7 @@ AirAware/
 │   │   ├── Reading.cs              # Sensor reading
 │   │   └── AqiRecord.cs            # Computed AQI data
 │   ├── Services/                # Business logic
-│   │   ├── EpaAqiCalculator.cs     # EPA AQI computation
+│   │   ├── AqiCalculator.cs     # EPA AQI computation
 │   │   └── IAqiCalculator.cs       # Calculator interface
 │   ├── ViewModels/              # Request/Response DTOs
 │   ├── Data/                    # Database context
@@ -272,7 +272,7 @@ Where:
 - **I_lo, I_hi** = index breakpoints
 - **Final AQI** = max(PM2.5 AQI, PM10 AQI)
 
-See `AirAware/Services/EpaAqiCalculator.cs` for implementation.
+See `AirAware/Services/AqiCalculator.cs` for implementation.
 
 ---
 
@@ -283,7 +283,7 @@ See `AirAware/Services/EpaAqiCalculator.cs` for implementation.
 
 ```
 AirAware.Tests/
-├── Services/EpaAqiCalculatorTests.cs      (16 tests)
+├── Services/AqiCalculatorTests.cs      (16 tests)
 │   ✅ All EPA breakpoints (PM2.5 & PM10)
 │   ✅ Linear interpolation accuracy
 │   ✅ Edge cases and boundary values
@@ -315,7 +315,7 @@ dotnet test
 dotnet test --verbosity normal
 
 # Run specific test class
-dotnet test --filter "FullyQualifiedName~EpaAqiCalculatorTests"
+dotnet test --filter "FullyQualifiedName~AqiCalculatorTests"
 ```
 
 ### Test Results
