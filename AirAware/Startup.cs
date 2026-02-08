@@ -13,8 +13,8 @@ public class Startup
     
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext dbContext)
     {
-        // Apply any pending migrations on startup
-        dbContext.Database.Migrate();
+        // Ensure database is created on startup
+        dbContext.Database.EnsureCreated();
         
         if (env.IsDevelopment())
         {
