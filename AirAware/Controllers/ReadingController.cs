@@ -45,7 +45,15 @@ public class ReadingController: ControllerBase
     )
     {
         if (!ModelState.IsValid) 
-            return BadRequest();
+            return BadRequest("Invalid data provided.");
+        
+        var station = await context
+            .Stations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == model.StationId);
+        
+        if (station == null) 
+            return BadRequest("Station with the provided ID does not exist.");
 
         var reading = new Reading
         {
