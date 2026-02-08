@@ -122,15 +122,15 @@ public class StationController: ControllerBase
         var station = await context.Stations.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
         if (station == null) return NotFound("Station not found.");
 
-        // Join AqiRecords -> Readings to filter by station id
+        // Get latest AQI record for this station, including its reading
         var latest = await context.AqiRecords
             .AsNoTracking()
+            .Where(a => a.StationId == id)
             .OrderByDescending(a => a.ComputedAt)
             .Join(context.Readings.AsNoTracking(),
                 a => a.ReadingId,
                 r => r.Id,
                 (a, r) => new { Aqi = a, Reading = r })
-            .Where(ar => ar.Reading.StationId == id)
             .Select(ar => new
             {
                 ar.Aqi.Id,

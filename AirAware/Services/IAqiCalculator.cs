@@ -1,6 +1,6 @@
-namespace AirAware.Services;
-
 using AirAware.Models;
+
+namespace AirAware.Services;
 
 public interface IAqiCalculator
 {

@@ -75,7 +75,7 @@ public class ReadingController: ControllerBase
             }
             catch
             {
-                // parsing failed — ignore and continue (we already have pm2_5)
+                // parsing failed — ignore and continue (we already have pm25)
             }
         }
         
@@ -101,10 +101,10 @@ public class ReadingController: ControllerBase
                 StationId = reading.StationId,
                 AqiValue = final.Value,
                 Category = final.Category,
-                Pm25Aqi = pm25Result?.Value,
-                Pm25Category = pm25Result?.Category,
-                Pm10Aqi = pm10Result?.Value,
-                Pm10Category = pm10Result?.Category,
+                Pm25Aqi = pm25Result.Value,
+                Pm25Category = pm25Result.Category,
+                Pm10Aqi = pm10Result.Value,
+                Pm10Category = pm10Result.Category,
                 ComputedAt = DateTime.UtcNow
             };
 
