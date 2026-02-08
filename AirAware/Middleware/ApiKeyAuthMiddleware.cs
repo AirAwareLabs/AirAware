@@ -14,14 +14,15 @@ public class ApiKeyAuthMiddleware
     {
         _next = next;
         
-        // Cache the valid API key from configuration during construction
+        // Read the API key from environment variable (recommended) or configuration
+        // Environment variable takes precedence over appsettings.json
         var validApiKey = configuration.GetValue<string>("ApiKey");
         
         // Check for server misconfiguration at startup
         if (string.IsNullOrWhiteSpace(validApiKey))
         {
             throw new InvalidOperationException(
-                "API Key is not configured. Please set the 'ApiKey' value in appsettings.json or environment variables.");
+                "API Key is not configured. Please set the 'ApiKey' environment variable.");
         }
         
         _validApiKeyBytes = Encoding.UTF8.GetBytes(validApiKey);

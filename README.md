@@ -356,17 +356,12 @@ Build succeeded ✅
 
 3. **Configure API Key**
    
-   Set your API key in `appsettings.json`:
-   ```json
-   {
-     "ApiKey": "your-secure-api-key-here"
-   }
-   ```
-   
-   Or use environment variables (recommended for production):
+   Set the API key as an environment variable:
    ```bash
    export ApiKey="your-secure-api-key-here"
    ```
+   
+   **Note:** The API key must be set as an environment variable for security reasons. Do not store API keys in configuration files.
 
 4. **Run migrations**
    ```bash
