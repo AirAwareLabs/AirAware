@@ -22,8 +22,15 @@ packages/
 
 # EF & SQLite local DBs (don't commit)
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+
+# EF Core Migrations (generated at runtime)
+Migrations/
 
 # Local config / secrets
 .env
