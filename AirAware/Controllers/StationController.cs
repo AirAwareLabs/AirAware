@@ -25,7 +25,7 @@ public class StationController: ControllerBase
     [Route("stations/{id}")]
     public async Task<IActionResult> GetByIdAsync(
         [FromServices] AppDbContext context, 
-        [FromRoute] int id
+        [FromRoute] Guid id
     )
     {
         var station = await context
