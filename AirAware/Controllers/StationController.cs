@@ -67,4 +67,41 @@ public class StationController: ControllerBase
             return BadRequest(e);
         }
     }
+    
+    [HttpPut]
+    [Route("stations/{id}")]
+    public async Task<IActionResult> PutAsync(
+        [FromServices] AppDbContext context, 
+        [FromBody] CreateStationViewModel model,
+        [FromRoute] Guid id
+    )
+    {
+        if (!ModelState.IsValid) 
+            return BadRequest();
+        
+        var station = await context
+            .Stations
+            .FirstOrDefaultAsync(s => s.Id == id);
+        
+        if (station == null)
+            return NotFound();
+
+        try
+        {
+            station.Name = model.Name;
+            station.Latitude = model.Latitude!.Value;
+            station.Longitude = model.Longitude!.Value;
+            station.Provider = model.Provider;
+            station.Metadata = model.Metadata;
+            
+            context.Stations.Update(station);
+            await context.SaveChangesAsync();
+
+            return Ok(station);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e);
+        }
+    }
 }
