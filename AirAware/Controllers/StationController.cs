@@ -62,9 +62,9 @@ public class StationController: ControllerBase
             await context.SaveChangesAsync();
             return Created($"v1/stations/{station.Id}", station);
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return BadRequest(e);
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
     
@@ -99,9 +99,9 @@ public class StationController: ControllerBase
 
             return Ok(station);
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return BadRequest(e);
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 }
