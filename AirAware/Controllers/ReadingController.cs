@@ -11,14 +11,25 @@ namespace AirAware.Controllers;
 [Route("api/v1")]
 public class ReadingController: ControllerBase
 {
+    private readonly ILogger<ReadingController> _logger;
+    
+    public ReadingController(ILogger<ReadingController> logger)
+    {
+        _logger = logger;
+    }
+    
     [HttpGet]
     [Route("readings")]
     public async Task<IActionResult> GetAsync([FromServices] AppDbContext context)
     {
+        _logger.LogInformation("Fetching all readings");
+        
         var readings = await context
             .Readings
             .AsNoTracking()
             .ToListAsync();
+        
+        _logger.LogInformation("Retrieved {Count} readings", readings.Count);
         return Ok(readings);
     }
     
@@ -29,14 +40,21 @@ public class ReadingController: ControllerBase
         [FromRoute] Guid id
     )
     {
+        _logger.LogInformation("Fetching reading with ID: {ReadingId}", id);
+        
         var reading = await context
             .Readings
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Id == id);
         
-        return reading == null 
-            ? NotFound() 
-            : Ok(reading);
+        if (reading == null)
+        {
+            _logger.LogWarning("Reading with ID {ReadingId} not found", id);
+            return NotFound();
+        }
+        
+        _logger.LogInformation("Successfully retrieved reading with ID: {ReadingId}", id);
+        return Ok(reading);
     }
     
     [HttpPost("readings")]
@@ -46,20 +64,29 @@ public class ReadingController: ControllerBase
         [FromBody] CreateReadingViewModel model
     )
     {
-        if (!ModelState.IsValid) 
+        _logger.LogInformation("Creating new reading for station {StationId}", model.StationId);
+        
+        if (!ModelState.IsValid)
+        {
+            _logger.LogWarning("Invalid model state for reading creation");
             return BadRequest("Invalid data provided.");
+        }
         
         var station = await context
             .Stations
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == model.StationId);
         
-        if (station == null) 
+        if (station == null)
+        {
+            _logger.LogWarning("Station with ID {StationId} does not exist", model.StationId);
             return BadRequest("Station with the provided ID does not exist.");
+        }
 
         double? pm10 = model.Pm10;
         if (!pm10.HasValue && !string.IsNullOrWhiteSpace(model.RawPayload))
         {
+            _logger.LogDebug("Attempting to extract PM10 from raw payload");
             try
             {
                 using var doc = System.Text.Json.JsonDocument.Parse(model.RawPayload);
@@ -71,11 +98,13 @@ public class ReadingController: ControllerBase
                     pm10 = val10b;
                 else if (root.TryGetProperty("pm10_atm", out var p10c) && p10c.TryGetDouble(out var val10c))
                     pm10 = val10c;
-                // add provider specific paths here
+                
+                if (pm10.HasValue)
+                    _logger.LogDebug("Extracted PM10 value: {Pm10}", pm10.Value);
             }
-            catch
+            catch (Exception ex)
             {
-                // parsing failed — ignore and continue (we already have pm25)
+                _logger.LogWarning(ex, "Failed to parse PM10 from raw payload");
             }
         }
         
@@ -91,8 +120,11 @@ public class ReadingController: ControllerBase
         {
             await context.Readings.AddAsync(reading);
             await context.SaveChangesAsync();
+            
+            _logger.LogInformation("Reading {ReadingId} created successfully for station {StationId}", reading.Id, reading.StationId);
 
             // compute AQI synchronously
+            _logger.LogDebug("Calculating AQI for reading {ReadingId}", reading.Id);
             var (final, pm25Result, pm10Result) = aqiCalculator.Calculate(reading);
 
             var aqiRecord = new AqiRecord
@@ -114,12 +146,19 @@ public class ReadingController: ControllerBase
             {
                 await context.AqiRecords.AddAsync(aqiRecord);
                 await context.SaveChangesAsync();
+                _logger.LogInformation("AQI record created for reading {ReadingId} with value {AqiValue} ({Category})", 
+                    reading.Id, aqiRecord.AqiValue, aqiRecord.Category);
+            }
+            else
+            {
+                _logger.LogDebug("AQI record already exists for reading {ReadingId}", reading.Id);
             }
 
             return Created($"api/v1/readings/{reading.Id}", new { reading, aqi = aqiRecord });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Error creating reading for station {StationId}", model.StationId);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
