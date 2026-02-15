@@ -20,7 +20,7 @@ jobs:
       - name: Set up Dotnet
         uses: actions/setup-dotnet@v3
         with:
-        dotnet-version: '10.0.x'
+          dotnet-version: '10.0.x'
           
       - name: Clean
         run: dotnet clean --configuration Release
