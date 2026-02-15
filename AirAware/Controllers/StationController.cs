@@ -10,14 +10,25 @@ namespace AirAware.Controllers;
 [Route("api/v1")]
 public class StationController: ControllerBase
 {
+    private readonly ILogger<StationController> _logger;
+    
+    public StationController(ILogger<StationController> logger)
+    {
+        _logger = logger;
+    }
+    
     [HttpGet]
     [Route("stations")]
     public async Task<IActionResult> GetAsync([FromServices] AppDbContext context)
     {
+        _logger.LogInformation("Fetching all stations");
+        
         var stations = await context
             .Stations
             .AsNoTracking()
             .ToListAsync();
+        
+        _logger.LogInformation("Retrieved {Count} stations", stations.Count);
         return Ok(stations);
     }
     
@@ -28,14 +39,21 @@ public class StationController: ControllerBase
         [FromRoute] Guid id
     )
     {
+        _logger.LogInformation("Fetching station with ID: {StationId}", id);
+        
         var station = await context
             .Stations
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id);
         
-        return station == null 
-            ? NotFound() 
-            : Ok(station);
+        if (station == null)
+        {
+            _logger.LogWarning("Station with ID {StationId} not found", id);
+            return NotFound();
+        }
+        
+        _logger.LogInformation("Successfully retrieved station with ID: {StationId}", id);
+        return Ok(station);
     }
     
     [HttpPost("stations")]
@@ -44,8 +62,13 @@ public class StationController: ControllerBase
         [FromBody] CreateStationViewModel model
     )
     {
-        if (!ModelState.IsValid) 
+        _logger.LogInformation("Creating new station: {StationName}", model.Name);
+        
+        if (!ModelState.IsValid)
+        {
+            _logger.LogWarning("Invalid model state for station creation");
             return BadRequest();
+        }
 
         var station = new Station
         {
@@ -60,10 +83,13 @@ public class StationController: ControllerBase
         {
             await context.Stations.AddAsync(station);
             await context.SaveChangesAsync();
+            
+            _logger.LogInformation("Station {StationId} created successfully: {StationName}", station.Id, station.Name);
             return Created($"api/v1/stations/{station.Id}", station);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Error creating station: {StationName}", model.Name);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -76,15 +102,23 @@ public class StationController: ControllerBase
         [FromRoute] Guid id
     )
     {
-        if (!ModelState.IsValid) 
+        _logger.LogInformation("Updating station with ID: {StationId}", id);
+        
+        if (!ModelState.IsValid)
+        {
+            _logger.LogWarning("Invalid model state for station update");
             return BadRequest();
+        }
         
         var station = await context
             .Stations
             .FirstOrDefaultAsync(s => s.Id == id);
         
         if (station == null)
+        {
+            _logger.LogWarning("Station with ID {StationId} not found for update", id);
             return NotFound();
+        }
 
         try
         {
@@ -103,10 +137,12 @@ public class StationController: ControllerBase
             
             await context.SaveChangesAsync();
 
+            _logger.LogInformation("Station {StationId} updated successfully", id);
             return Ok(station);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Error updating station {StationId}", id);
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -118,9 +154,15 @@ public class StationController: ControllerBase
         [FromRoute] Guid id
     )
     {
+        _logger.LogInformation("Fetching latest AQI for station {StationId}", id);
+        
         // Ensure station exists
         var station = await context.Stations.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
-        if (station == null) return NotFound("Station not found.");
+        if (station == null)
+        {
+            _logger.LogWarning("Station {StationId} not found", id);
+            return NotFound("Station not found.");
+        }
 
         // Get latest AQI record for this station, including its reading
         var latest = await context.AqiRecords
@@ -141,8 +183,14 @@ public class StationController: ControllerBase
             })
             .FirstOrDefaultAsync();
 
-        if (latest == null) return NotFound("No AQI records for station.");
+        if (latest == null)
+        {
+            _logger.LogWarning("No AQI records found for station {StationId}", id);
+            return NotFound("No AQI records for station.");
+        }
 
+        _logger.LogInformation("Retrieved latest AQI for station {StationId}: {AqiValue} ({Category})", 
+            id, latest.AqiValue, latest.Category);
         return Ok(latest);
     }
 }
