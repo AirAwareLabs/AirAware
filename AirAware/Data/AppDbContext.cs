@@ -17,7 +17,9 @@ public class AppDbContext: DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlite("DataSource=app.db;Cache=Shared");
+            // Use environment variable for database path, defaulting to local path
+            var dbPath = Environment.GetEnvironmentVariable("DATABASE_PATH") ?? "app.db";
+            optionsBuilder.UseSqlite($"DataSource={dbPath};Cache=Shared");
         }
     }
 }
