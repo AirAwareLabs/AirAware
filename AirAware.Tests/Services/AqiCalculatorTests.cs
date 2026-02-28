@@ -32,7 +32,7 @@ public class AqiCalculatorTests
         var result = _calculator.CalculateForPm25(concentration);
 
         // Assert
-        Assert.Equal(1, result.Value);
+        Assert.Equal(expectedAqi, result.Value);
         Assert.Equal(expectedCategory, result.Category);
         Assert.Equal("PM2.5", result.Pollutant);
     }
