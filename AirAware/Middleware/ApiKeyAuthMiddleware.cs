@@ -30,6 +30,13 @@ public class ApiKeyAuthMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        // Allow unauthenticated access to the health check endpoint
+        if (context.Request.Path.StartsWithSegments("/health"))
+        {
+            await _next(context);
+            return;
+        }
+
         // Extract the API key from the request header
         if (!context.Request.Headers.TryGetValue(ApiKeyHeaderName, out var extractedApiKey))
         {

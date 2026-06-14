@@ -52,8 +52,49 @@ public class ReadingControllerTests : IDisposable
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var readings = Assert.IsAssignableFrom<List<Reading>>(okResult.Value);
-        Assert.Equal(2, readings.Count);
+        var paged = Assert.IsType<PagedResult<Reading>>(okResult.Value);
+        Assert.Equal(2, paged.Total);
+        Assert.Equal(2, paged.Data.Count);
+        Assert.Equal(1, paged.Page);
+        Assert.Equal(50, paged.PageSize);
+    }
+
+    [Fact]
+    public async Task GetAsync_RespectsPaginationParameters()
+    {
+        // Arrange
+        var station = new Station { Name = "Test Station", Latitude = 40.7128, Longitude = -74.0060 };
+        await _context.Stations.AddAsync(station);
+        await _context.SaveChangesAsync();
+
+        for (var i = 0; i < 5; i++)
+        {
+            await _context.Readings.AddAsync(new Reading { StationId = station.Id, Pm25 = i });
+        }
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _controller.GetAsync(_context, page: 2, pageSize: 2);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var paged = Assert.IsType<PagedResult<Reading>>(okResult.Value);
+        Assert.Equal(5, paged.Total);
+        Assert.Equal(2, paged.Data.Count);
+        Assert.Equal(2, paged.Page);
+        Assert.Equal(2, paged.PageSize);
+    }
+
+    [Fact]
+    public async Task GetAsync_ClampsPageSizeToMaximum()
+    {
+        // Act
+        var result = await _controller.GetAsync(_context, page: 1, pageSize: 1000);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var paged = Assert.IsType<PagedResult<Reading>>(okResult.Value);
+        Assert.Equal(200, paged.PageSize);
     }
 
     [Fact]
