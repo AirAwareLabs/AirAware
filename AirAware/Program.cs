@@ -17,10 +17,22 @@ public class Program
             {
                 var context = services.GetRequiredService<AppDbContext>();
                 var logger = services.GetRequiredService<ILogger<Program>>();
-                
-                logger.LogInformation("Applying database migrations...");
-                context.Database.Migrate();
-                logger.LogInformation("Database migrations applied successfully.");
+
+                // Migrations are generated for PostgreSQL (production on Render).
+                // For the SQLite local-dev fallback, build the schema from the model
+                // directly since the relational migrations are provider-specific.
+                if (context.Database.IsNpgsql())
+                {
+                    logger.LogInformation("Applying database migrations...");
+                    context.Database.Migrate();
+                    logger.LogInformation("Database migrations applied successfully.");
+                }
+                else
+                {
+                    logger.LogInformation("Ensuring local database is created...");
+                    context.Database.EnsureCreated();
+                    logger.LogInformation("Local database ready.");
+                }
             }
             catch (Exception ex)
             {

@@ -18,19 +18,39 @@ public class ReadingController: ControllerBase
         _logger = logger;
     }
     
+    private const int MaxPageSize = 200;
+
     [HttpGet]
     [Route("readings")]
-    public async Task<IActionResult> GetAsync([FromServices] AppDbContext context)
+    public async Task<IActionResult> GetAsync(
+        [FromServices] AppDbContext context,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50)
     {
-        _logger.LogInformation("Fetching all readings");
-        
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 50;
+        if (pageSize > MaxPageSize) pageSize = MaxPageSize;
+
+        _logger.LogInformation("Fetching readings (page {Page}, pageSize {PageSize})", page, pageSize);
+
+        var total = await context.Readings.CountAsync();
+
         var readings = await context
             .Readings
             .AsNoTracking()
+            .OrderByDescending(r => r.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
-        
+
         _logger.LogInformation("Retrieved {Count} readings", readings.Count);
-        return Ok(readings);
+        return Ok(new PagedResult<Reading>
+        {
+            Data = readings,
+            Page = page,
+            PageSize = pageSize,
+            Total = total
+        });
     }
     
     [HttpGet]

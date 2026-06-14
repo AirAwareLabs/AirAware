@@ -7,6 +7,15 @@
 **/*.db
 **/*.db-shm
 **/*.db-wal
+**/*.sqlite
+**/*.sqlite3
+
+# Local development configuration / secrets (do not leak into the image)
+**/appsettings.Development.json
+**/appsettings.*.Secrets.json
+**/secrets.json
+.env
+.env.*
 
 # User-specific files
 *.suo

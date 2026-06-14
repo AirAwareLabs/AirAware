@@ -423,7 +423,7 @@ git config --global push.autoSetupRemote true
 ## 📦 Database Migrations
 
 ### Current Migrations
-- `20260208171606_CreateAqiRecordsService` - Initial schema with Stations, Readings, AqiRecords
+- `InitialPostgres` - Initial PostgreSQL schema with Stations, Readings, AqiRecords
 
 ### Creating New Migrations
 ```bash
@@ -432,18 +432,38 @@ dotnet ef migrations add YourMigrationName
 dotnet ef database update
 ```
 
-### Switching to PostgreSQL
-The system uses SQLite by default but is designed for PostgreSQL in production:
+### SQLite vs PostgreSQL
+The system selects its database provider at runtime based on the `DATABASE_URL`
+environment variable:
 
-1. Install package:
-   ```bash
-   dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
-   ```
+- **`DATABASE_URL` set** → PostgreSQL (via `Npgsql.EntityFrameworkCore.PostgreSQL`).
+  Render-style URIs (`postgres://user:pass@host:port/db`) are converted to the
+  Npgsql key/value format automatically.
+- **`DATABASE_URL` unset** → SQLite local-dev fallback (`DATABASE_PATH`, default `app.db`).
 
-2. Update `AppDbContext.cs`:
-   ```csharp
-   optionsBuilder.UseNpgsql("your-connection-string");
-   ```
+On startup the app applies EF Core migrations when running on PostgreSQL and uses
+`EnsureCreated()` for the SQLite fallback (migrations are PostgreSQL-specific).
+
+---
+
+## ☁️ Deployment to Render
+
+This repo ships a [`render.yaml`](./render.yaml) Infrastructure-as-Code blueprint
+that provisions a Docker web service plus a managed PostgreSQL database. Point
+Render at the repo (Blueprints → New Blueprint Instance) and it will build the
+`Dockerfile`, wire `DATABASE_URL` from the database, and probe `/health`.
+
+### Required environment variables
+
+| Variable | Description |
+|---|---|
+| `ApiKey` | API authentication key (sent by clients via the `X-API-KEY` header). Set manually in the Render dashboard (`sync: false`). |
+| `DATABASE_URL` | PostgreSQL connection string. Populated automatically by Render from the `airaware-db` database. |
+| `ALLOWED_ORIGINS` | Comma-separated list of origins allowed by CORS (e.g. `https://my-frontend.vercel.app`). Set manually in the dashboard. When empty, any origin is allowed (dev-friendly default). |
+| `ASPNETCORE_ENVIRONMENT` | Runtime environment. Use `Production` on Render. |
+
+The `/health` endpoint returns `200 OK` with `{ "status": "healthy" }` and does
+**not** require an API key, so it is safe to use as the Render health check.
 
 ---
 
@@ -464,8 +484,8 @@ Edit `appsettings.json` for configuration:
 ```
 
 ### Database Connection
-Current: SQLite (`app.db`)
-Production: PostgreSQL (update connection string in `AppDbContext.cs`)
+Local dev: SQLite (`app.db`, override with `DATABASE_PATH`)
+Production: PostgreSQL (set `DATABASE_URL`; see "SQLite vs PostgreSQL" above)
 
 ---
 
