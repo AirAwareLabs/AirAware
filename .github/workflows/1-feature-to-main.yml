@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'feature/*'
+      - 'devin/*'
 
 permissions:
   contents: write
